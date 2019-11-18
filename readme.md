@@ -3,6 +3,11 @@
 A subtle monochrome color scheme for vim that uses only 6 shades of grey 
 
 
+TODO:
+  - [x] ~~gui~~
+  - [ ] terminal
+
+
 ## Screenshots
 
 <img src="https://github.com/runningskull/monoid.vim/blob/master/img/light.png">
