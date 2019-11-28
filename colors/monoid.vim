@@ -16,14 +16,14 @@ if &bg ==? 'light'
 	let s:fg_2  = '#888888'
 	let s:fg_3  = '#d8d8d8'
 	let s:bg_1  = '#ffffff'
-	let s:bg_2  = '#eeeeee'
+	let s:bg_2  = '#f6f6f6'
 else
 	let s:fg_0	= '#eaeaea'
 	let s:fg_1  = '#ffffff'
 	let s:fg_2  = '#888888'
 	let s:fg_3  = '#444444'
 	let s:bg_1  = '#282828'
-	let s:bg_2  = '#383838'
+	let s:bg_2  = '#303030'
 endif
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
@@ -60,7 +60,7 @@ HI FoldColumn		guifg=fg_2    guibg=bg_2	gui=bold
 HI SignColumn		guifg=fg_2	  guibg=bg_2	gui=bold
 HI IncSearch		guifg=fg_0	  guibg=bg_1	gui=reverse
 HI LineNr			guifg=fg_3	  guibg=none	gui=none
-HI CursorLineNr		guifg=fg_2	  guibg=none	gui=none
+HI CursorLineNr		guifg=fg_3	  guibg=none	gui=bold
 HI MatchParen		guifg=fg_1	  guibg=fg_3	gui=bold
 HI ModeMsg			guifg=fg_2					gui=bold
 HI NonText			guifg=fg_3
