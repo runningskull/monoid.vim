@@ -113,7 +113,9 @@ HI Todo				guifg=fg_2	  guibg=none	gui=bold,italic
 
 " Language-Specific Additions
 
-HI cppFunctionDecl	guifg=fg_1				gui=bold
+HI cppFunctionDecl	guifg=fg_1					gui=bold
+HI cppClassDecl		guifg=fg_1					gui=bold
+
 hi link qfLineNr __NULL__
 
 
