@@ -1,39 +1,41 @@
 "-----------------------------------------------------------------------
 " monoid.vim / a subtle color theme using only 6 shades of grey
 "
-" Version: 1.2020-1-30
-" Author:  https://github.com/runningskull
+" Version: 2020.05.12
+" Source:  https://github.com/runningskull/monoid.vim
 " License: CC0 (https://creativecommons.org/publicdomain/zero/1.0/)
 "-----------------------------------------------------------------------
 
 syn reset
 
 
-function! s:rgboff(rgb, offset)
-	return map(copy(a:rgb), 'max([0, min([v:val + a:offset, 255])])')
+function! s:rgbclamp(x)
+	return max([0, min([float2nr(round(a:x)), 255])])
+endfunction
+
+function! s:rgbscale(rgb, scale)
+	return map(copy(a:rgb), 's:rgbclamp(v:val * a:scale)')
 endfunction
 
 
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 if &bg ==? 'light'
-	let s:bg_0_gui = s:rgboff([244, 245, 245], get(g:, 'monoid_shift', 0))
-	let s:fg_0_gui = s:rgboff([ 25,  25,  25], get(g:, 'monoid_shift', 0))
-	let s:bg_1_gui = s:rgboff(s:bg_0_gui,  -5)
-	let s:fg_1_gui = s:rgboff(s:fg_0_gui,  33)
-	let s:fg_2_gui = s:rgboff(s:fg_0_gui, 111)
-	let s:fg_3_gui = s:rgboff(s:fg_0_gui, 191)
+	let s:bg_0_gui = get(g:,'monoid_bg_gui', [244, 245, 245])
+	let s:bg_1_gui = s:rgbscale(s:bg_0_gui, 0.98)
+	let s:fg_0_gui = s:rgbscale(s:bg_0_gui, 0.10)
+	let s:fg_1_gui = s:rgbscale(s:bg_0_gui, 0.24)
+	let s:fg_2_gui = s:rgbscale(s:bg_0_gui, 0.56)
+	let s:fg_3_gui = s:rgbscale(s:bg_0_gui, 0.88)
 else
-	let s:bg_0  = get(g:, 'bg_0', '#282828')
-	let s:bg_1  = get(g:, 'bg_1', '#303030')
-	let s:fg_0  = get(g:, 'fg_0', '#ffffff')
-	let s:fg_1	= get(g:, 'fg_1', '#eaeaea')
-	let s:fg_2  = get(g:, 'fg_2', '#888888')
-	let s:fg_3  = get(g:, 'fg_3', '#444444')
+	let s:bg_0_gui  = get(g:,'monoid_bg_gui', [39, 40, 40])
+	let s:bg_1_gui  = s:rgbscale(s:bg_0_gui, 1.20)
+	let s:fg_0_gui  = s:rgbscale(s:bg_0_gui, 6.38)
+	let s:fg_1_gui	= s:rgbscale(s:bg_0_gui, 5.85)
+	let s:fg_2_gui  = s:rgbscale(s:bg_0_gui, 3.40)
+	let s:fg_3_gui  = s:rgbscale(s:bg_0_gui, 1.70)
 endif
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 
-if exists('g:monoid_nobold') | let s:bold = '' | endif
-if exists('g:monoid_noitalic') | let s:italic = '' | endif
 
 function! s:rgb2hex(rgb)
 	let [r,g,b] = a:rgb
@@ -69,6 +71,9 @@ function! s:hi_group(group, ...)
 	exe hicmd.''
 endfunction
 command! -nargs=+ HI call s:hi_group(<f-args>)
+
+if exists('g:monoid_nobold') | let s:bold = '' | endif
+if exists('g:monoid_noitalic') | let s:italic = '' | endif
 
 
 
