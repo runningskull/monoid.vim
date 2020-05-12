@@ -9,35 +9,62 @@
 syn reset
 
 
+function! s:rgboff(rgb, offset)
+	return map(copy(a:rgb), 'max([0, min([v:val + a:offset, 255])])')
+endfunction
+
+
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 if &bg ==? 'light'
-	let s:fg_0  = '#191919'
-	let s:fg_1  = '#3a3a3a'
-	let s:fg_2  = '#888888'
-	let s:fg_3  = '#d8d8d8'
-	let s:bg_1  = '#ffffff'
-	let s:bg_2  = '#f6f6f6'
+	let s:bg_0_gui = s:rgboff([244, 245, 245], get(g:, 'monoid_shift', 0))
+	let s:fg_0_gui = s:rgboff([ 25,  25,  25], get(g:, 'monoid_shift', 0))
+	let s:bg_1_gui = s:rgboff(s:bg_0_gui,  -5)
+	let s:fg_1_gui = s:rgboff(s:fg_0_gui,  33)
+	let s:fg_2_gui = s:rgboff(s:fg_0_gui, 111)
+	let s:fg_3_gui = s:rgboff(s:fg_0_gui, 191)
 else
-	let s:fg_0  = '#ffffff'
-	let s:fg_1	= '#eaeaea'
-	let s:fg_2  = '#888888'
-	let s:fg_3  = '#444444'
-	let s:bg_1  = '#282828'
-	let s:bg_2  = '#303030'
+	let s:bg_0  = get(g:, 'bg_0', '#282828')
+	let s:bg_1  = get(g:, 'bg_1', '#303030')
+	let s:fg_0  = get(g:, 'fg_0', '#ffffff')
+	let s:fg_1	= get(g:, 'fg_1', '#eaeaea')
+	let s:fg_2  = get(g:, 'fg_2', '#888888')
+	let s:fg_3  = get(g:, 'fg_3', '#444444')
 endif
 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-
 
 if exists('g:monoid_nobold') | let s:bold = '' | endif
 if exists('g:monoid_noitalic') | let s:italic = '' | endif
 
+function! s:rgb2hex(rgb)
+	let [r,g,b] = a:rgb
+	return printf("#%02x%02x%02x", r, g, b)
+endfunction
+
+function! s:hi_fmt(list)
+	let fmt = join(map(copy(a:list), 'get(s:,v:val,v:val)'), ',')
+	return 'gui='.fmt.' cterm='.fmt
+endfunction
+
+function! s:hi_clr(role, var)
+	if a:var ==? 'none'
+		let [gui, term] = ['none', 'none']
+	else
+		let gui = s:rgb2hex(get(s:, a:var.'_gui'))
+		let term = get(s:, a:var.'_term')
+	endif
+	return 'gui'.a:role.'='.gui.' cterm'.a:role.'='.term
+endfunction
+
 function! s:hi_group(group, ...)
-	let hicmd = 'hi ' . a:group
+	let hicmd = 'hi '.a:group.' '
 	for kv in a:000
-		let [k, vlist] = split(kv, '=')
-		let vstr = ''
-		for v in split(vlist, ',') | let vstr .= get(s:,v,v) . ',' | endfor
-		let hicmd .= ' ' . k . '=' . substitute(vstr, ",$", "", "") 
+		let [key, val] = split(kv, '=')
+		let role = matchlist(key, '\v(fg|bg)$')
+		if len(role)
+			let hicmd .= s:hi_clr(role[0], val) . ' '
+		else
+			let hicmd .= s:hi_fmt(split(val, ',')) . ' '
+		endif
 	endfor
 	exe hicmd.''
 endfunction
@@ -47,28 +74,28 @@ command! -nargs=+ HI call s:hi_group(<f-args>)
 
 " Vim Core (see :h highlight-groups)
 
-HI Normal			guifg=fg_0	  guibg=bg_1	gui=none
-HI ColorColumn					  guibg=bg_3
+HI Normal			guifg=fg_0	  guibg=bg_0	gui=none
+HI ColorColumn					  guibg=bg_1
 HI Cursor										gui=reverse
-HI CursorLine					  guibg=bg_2
-HI CursorColumn					  guibg=bg_2
-HI Directory		guifg=fg_0	  guibg=bg_1	gui=bold
+HI CursorLine					  guibg=bg_1
+HI CursorColumn					  guibg=bg_1
+HI Directory		guifg=fg_0	  guibg=bg_0	gui=bold
 HI EndOfBuffer		guifg=fg_3
-HI VertSplit		guifg=fg_3	  guibg=none	gui=none
+HI VertSplit		guifg=fg_3	  guibg=bg_1	gui=none
 HI Folded			guifg=fg_2	  guibg=none	gui=bold
-HI FoldColumn		guifg=fg_2    guibg=bg_2	gui=bold
-HI SignColumn		guifg=fg_2	  guibg=bg_2	gui=bold
-HI IncSearch		guifg=fg_1	  guibg=bg_1	gui=reverse
+HI FoldColumn		guifg=fg_2    guibg=bg_1	gui=bold
+HI SignColumn		guifg=fg_2	  guibg=bg_1	gui=bold
+HI IncSearch		guifg=fg_1	  guibg=bg_0	gui=reverse
 HI LineNr			guifg=fg_3	  guibg=none	gui=none
 HI CursorLineNr		guifg=fg_3	  guibg=none	gui=bold
 HI MatchParen		guifg=fg_0	  guibg=fg_3	gui=bold
 HI ModeMsg			guifg=fg_2					gui=bold
 HI NonText			guifg=fg_3
 HI Pmenu			guifg=fg_1	  guibg=fg_3
-HI PmenuSel			guifg=bg_1    guibg=fg_2	gui=bold
+HI PmenuSel			guifg=bg_0    guibg=fg_2	gui=bold
 HI QuickFixLine		guifg=fg_0	  guibg=fg_3	gui=bold
-HI Search						  guibg=bg_1	gui=reverse
-HI StatusLine		guifg=fg_2	  guibg=bg_1	gui=reverse,bold
+HI Search						  guibg=bg_0	gui=reverse
+HI StatusLine		guifg=fg_2	  guibg=bg_0	gui=reverse,bold
 HI StatusLineNC		guifg=fg_3	  guibg=fg_2	gui=reverse
 HI TabLineFill					  guibg=fg_3	gui=none
 HI TabLine										gui=italic
@@ -116,8 +143,9 @@ HI Todo				guifg=fg_2	  guibg=none	gui=bold,italic
 
 HI cppFunctionDecl	guifg=fg_0					gui=bold
 HI cppClassDecl		guifg=fg_0					gui=bold
+HI cppVarDecl		guifg=fg_0					gui=bold
 
-hi link qfLineNr __NULL__
+hi link qfLineNr NONE
 
 
 
